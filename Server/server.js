@@ -5,17 +5,20 @@ const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
+const productRoutes = require("./routes/productRoutes");
+const inventoryRoutes = require("./routes/inventoryRoutes");
+const salesRoutes = require("./routes/salesRoutes");
+const profitLossRoutes = require("./routes/profitLossRoutes");
+const returnsRoutes = require("./routes/returnsRoutes");
+
 const errorHandler = require("./middleware/errorMiddleware");
 
-// Initialize DB connection
 require("./db/db");
 
 const app = express();
 
-// Security middleware
 app.use(helmet());
 
-// CORS setup
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "*",
@@ -23,10 +26,8 @@ app.use(
   })
 );
 
-// Body parser
 app.use(express.json());
 
-// Global rate limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -37,24 +38,25 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-// Health check route
 app.get("/", (req, res) => {
   res.status(200).json({
     message: "E-Commerce Analytics Backend is running",
   });
 });
 
-// Auth routes
 app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/sales", salesRoutes);
+app.use("/api/profit-loss", profitLossRoutes);
+app.use("/api/returns", returnsRoutes);
 
-// Handle unknown routes
 app.use((req, res) => {
   res.status(404).json({
     message: "Route not found",
   });
 });
 
-// Global error handler
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5001;
